@@ -1,0 +1,8 @@
+node_modules
+# dist/ est versionné : Cloudflare le publie tel quel (voir README)
+data/store.json
+data/store.json.*
+data/uploads/*
+!data/uploads/.gitkeep
+*.log
+.DS_Store

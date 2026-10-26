@@ -1,0 +1,11 @@
+{
+  "name": "Courses Famille",
+  "short_name": "Courses",
+  "description": "Liste de courses familiale collaborative, budget en Dirhams",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f5f1",
+  "theme_color": "#0f766e",
+  "lang": "fr",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

@@ -1,0 +1,28 @@
+# Publie l'application sur Cloudflare à chaque push sur main.
+# Nécessite deux secrets du dépôt : CLOUDFLARE_API_TOKEN et CLOUDFLARE_ACCOUNT_ID
+# (inutile si le dépôt est relié à Cloudflare via « Workers Builds »).
+name: Déploiement Cloudflare
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Vérifier les secrets
+        id: check
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: echo "ok=$([ -n "$TOKEN" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+      - name: Publier sur Cloudflare
+        if: steps.check.outputs.ok == 'true'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy
+      - name: Secrets absents
+        if: steps.check.outputs.ok != 'true'
+        run: echo "Pas de CLOUDFLARE_API_TOKEN : déploiement ignoré (Workers Builds peut s'en charger)."

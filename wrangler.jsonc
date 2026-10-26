@@ -1,0 +1,22 @@
+// Courses Famille — déploiement Cloudflare (Worker + D1 + Assets).
+// Publication : `npx wrangler deploy` (ou automatiquement à chaque push via GitHub, voir README).
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "courses-famille",
+  "main": "worker/index.ts",
+  "compatibility_date": "2025-09-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*", "/uploads/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "courses-famille-db",
+      "database_id": "6036de70-d9d3-4cc4-8422-e2d793b48e27"
+    }
+  ],
+  "observability": { "enabled": true }
+}
