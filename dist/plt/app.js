@@ -22,6 +22,7 @@ const ICONS = {
   print: '<path d="M7 9V3h10v6M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/><path d="M7 14h10v7H7z"/>',
   install: '<path d="M12 3v12M7 10l5 5 5-5"/><rect x="3" y="17" width="18" height="4" rx="1"/>',
   speed: '<path d="M12 14l4-5"/><path d="M3.5 17a9 9 0 1 1 17 0"/>',
+  paste: '<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6"/>',
   trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
 };
 function paintIcons(root = document) {
@@ -877,12 +878,32 @@ function toast(msg) {
 }
 
 const fileInput = $('fileInput');
-$('btnOpen').onclick = $('btnOpen2').onclick = () => fileInput.click();
+for (const id of ['btnOpen', 'btnOpen2']) {
+  $(id).addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); } });
+}
+const pasteDlg = $('pasteDlg');
+const openPaste = () => {
+  $('menu').hidden = true;
+  if (typeof pasteDlg.showModal === 'function') pasteDlg.showModal(); else pasteDlg.setAttribute('open', '');
+  $('pasteText').focus();
+};
+$('btnPaste').onclick = openPaste;
+$('btnPaste2').onclick = openPaste;
+pasteDlg.addEventListener('close', () => {
+  const txt = $('pasteText').value;
+  if (pasteDlg.returnValue !== 'ok' || !txt.trim()) return;
+  const bytes = new Uint8Array(txt.length);
+  for (let k = 0; k < txt.length; k++) bytes[k] = txt.charCodeAt(k) & 0xff;
+  const d = openData('colle.plt', bytes, true);
+  if (d) { $('pasteText').value = ''; activate(d); }
+});
 fileInput.onchange = () => { if (fileInput.files.length) openFiles([...fileInput.files]); fileInput.value = ''; };
 $('btnSample').onclick = async () => {
   try {
-    const res = await fetch('exemple.plt');
-    const d = openData('exemple.plt', new Uint8Array(await res.arrayBuffer()), false);
+    const bytes = window.PLT_SAMPLE
+      ? Uint8Array.from(window.PLT_SAMPLE, (ch) => ch.charCodeAt(0))
+      : new Uint8Array(await (await fetch('exemple.plt')).arrayBuffer());
+    const d = openData('exemple.plt', bytes, false);
     if (d) activate(d);
   } catch { toast("Impossible de charger l'exemple."); }
 };
