@@ -82,6 +82,10 @@ async function openFiles(files) {
 }
 
 function openData(name, bytes, remember) {
+  if (!bytes.length) {
+    toast(`« ${name} » est vide (0 octet). Copiez d'abord le fichier dans « Téléchargements » sur l'appareil, puis rouvrez-le.`);
+    return null;
+  }
   let result;
   try { result = parseHPGL(bytes); } catch (e) { toast(`Erreur d'analyse : ${e.message}`); return null; }
   if (!result.recognized || !result.ops.length) {
