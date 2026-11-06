@@ -117,3 +117,25 @@ Déploiement automatique à chaque `git push` sur `main`, au choix :
 L'adresse est ensuite `https://courses-famille.<votre-sous-domaine>.workers.dev`. Chaque famille a son code (`/?code=FAMILLE-XXXX`) : partagez le lien avec le code pour donner accès à la même liste.
 
 **Transférer les données** : dans l'ancienne version, Réglages → Données → « Sauvegarde complète (.json) », puis dans la nouvelle, « Restaurer une sauvegarde (.json) » (photos comprises).
+
+## 📐 PLT Viewer — visionneuse HPGL (PC et Android)
+
+Application indépendante dans `public/plt/` (copiée dans `dist/plt/`), publiée avec le site à l’adresse **`/plt/`**.
+HTML/JS pur, aucune dépendance, fonctionne **hors ligne** et s’installe comme une application.
+
+**Formats** : `.plt`, `.hpgl`, `.hpg`, `.hgl`, `.plo`, `.spl` — HP-GL et HP-GL/2, y compris les fichiers enveloppés dans du PCL/PJL (traceurs AutoCAD, découpeuses, patronages).
+Commandes prises en charge : `IN DF PU PD PA PR SP LT PW WU PC CR IP SC RO CI AA AR AT RT EA ER RA RR EW WG PM EP FP LB DT SI SR DI DR CP PE SM CO`.
+
+**Fonctions**
+- Ouvrir un ou plusieurs fichiers (bouton, glisser-déposer, Ctrl+O), fichiers récents mémorisés sur l’appareil.
+- Zoom molette / pincement, déplacement à la souris ou au doigt, double-tap = zoom, ajuster, **taille réelle 1:1**, rotation 90°.
+- Couleurs par stylo (modifiables), masquer un stylo, épaisseurs réelles (PW), déplacements plume levée, fond sombre, grille 10 mm.
+- Infos : dimensions en mm, longueur tracée, déplacements, longueur par stylo.
+- **Mesure** de distances (aimantation sur les sommets), **simulation du tracé** avec vitesse réglable.
+- Export **SVG** (à l’échelle, en mm) et **PNG** ; impression ajustée à la page ou **en taille réelle sur plusieurs A4** (mosaïque avec trait de contrôle de 50 mm).
+
+**Installation**
+- **PC (Chrome / Edge)** : ouvrir `https://<votre-site>/plt/` → icône « Installer » dans la barre d’adresse (ou menu ⋮ → Installer l’application). Une fois installée, les fichiers `.plt` peuvent être ouverts directement avec « Ouvrir avec → PLT Viewer ».
+- **Android (Chrome)** : ouvrir la même adresse → menu ⋮ → « Installer l’application » / « Ajouter à l’écran d’accueil ». Depuis le gestionnaire de fichiers ou une messagerie, **Partager → PLT Viewer** ouvre le fichier.
+- **APK / Play Store ou MSIX Windows** (facultatif) : saisir l’adresse `/plt/` sur [pwabuilder.com](https://www.pwabuilder.com) pour générer le paquet.
+- Test local : `cd public/plt && python3 -m http.server 8080` puis `http://localhost:8080`.
