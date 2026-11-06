@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>PLT Viewer</title>
+  <meta name="description" content="Visionneuse de fichiers HPGL / PLT pour PC et Android, hors ligne.">
+  <meta name="theme-color" content="#0f172a">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="bar" id="toolbar">
+    <button class="btn primary" id="btnOpen" title="Ouvrir un fichier (Ctrl+O)"><i data-i="open"></i><span>Ouvrir</span></button>
+    <select id="docSelect" title="Fichiers ouverts" hidden></select>
+    <div class="spacer"></div>
+    <div class="group" id="viewTools">
+      <button class="btn icon" id="btnFit" title="Ajuster à l'écran (F)"><i data-i="fit"></i></button>
+      <button class="btn icon" id="btnZoomIn" title="Zoom avant (+)"><i data-i="plus"></i></button>
+      <button class="btn icon" id="btnZoomOut" title="Zoom arrière (−)"><i data-i="minus"></i></button>
+      <button class="btn icon" id="btn1to1" title="Taille réelle (1)"><i data-i="ruler"></i></button>
+      <button class="btn icon" id="btnRotate" title="Pivoter de 90° (R)"><i data-i="rotate"></i></button>
+      <button class="btn icon" id="btnMeasure" title="Mesurer une distance (M)"><i data-i="measure"></i></button>
+      <button class="btn icon" id="btnPlay" title="Simuler le tracé (Espace)"><i data-i="play"></i></button>
+      <button class="btn icon" id="btnPanel" title="Informations et stylos (I)"><i data-i="info"></i></button>
+      <button class="btn icon" id="btnMenu" title="Plus d'options"><i data-i="more"></i></button>
+    </div>
+  </header>
+
+  <div id="menu" class="menu" hidden>
+    <label class="check"><input type="checkbox" id="optTravel"> Afficher les déplacements plume levée</label>
+    <label class="check"><input type="checkbox" id="optWidth"> Épaisseurs réelles (PW)</label>
+    <label class="check"><input type="checkbox" id="optDark"> Fond sombre</label>
+    <label class="check"><input type="checkbox" id="optGrid" checked> Grille (10 mm)</label>
+    <label class="check"><input type="checkbox" id="optMono"> Tout en noir</label>
+    <hr>
+    <button class="item" id="btnSvg"><i data-i="download"></i> Exporter en SVG</button>
+    <button class="item" id="btnPng"><i data-i="image"></i> Exporter en PNG</button>
+    <button class="item" id="btnPrintFit"><i data-i="print"></i> Imprimer (ajusté à la page)</button>
+    <button class="item" id="btnPrintTile"><i data-i="print"></i> Imprimer en taille réelle (mosaïque A4)</button>
+    <hr>
+    <button class="item" id="btnClose"><i data-i="close"></i> Fermer le fichier</button>
+    <button class="item" id="btnInstall" hidden><i data-i="install"></i> Installer l'application</button>
+  </div>
+
+  <main id="main">
+    <div id="stage">
+      <canvas id="canvas"></canvas>
+      <canvas id="overlay"></canvas>
+      <div id="welcome" class="welcome">
+        <div class="drop">
+          <img src="icon.svg" alt="" width="72" height="72">
+          <h1>PLT Viewer</h1>
+          <p>Visionneuse de fichiers <b>HPGL / HP-GL/2</b><br><small>.plt · .hpgl · .hpg · .hgl · .plo · .spl</small></p>
+          <button class="btn primary big" id="btnOpen2"><i data-i="open"></i><span>Ouvrir un fichier</span></button>
+          <p class="hint desktop-only">ou glissez-déposez un ou plusieurs fichiers ici</p>
+          <button class="btn link" id="btnSample">Essayer avec un exemple</button>
+          <div id="recent" class="recent" hidden>
+            <h2>Récents</h2>
+            <ul id="recentList"></ul>
+          </div>
+        </div>
+      </div>
+      <div id="dropHint" class="drop-hint" hidden>Déposez le fichier pour l'ouvrir</div>
+      <div id="toast" class="toast" hidden></div>
+    </div>
+
+    <aside id="panel" class="panel" hidden>
+      <div class="panel-head">
+        <strong id="pName">—</strong>
+        <button class="btn icon small" id="btnPanelClose" title="Fermer"><i data-i="close"></i></button>
+      </div>
+      <dl class="info" id="pInfo"></dl>
+      <h3>Stylos</h3>
+      <ul class="pens" id="pPens"></ul>
+      <div id="pUnknown" class="unknown" hidden></div>
+    </aside>
+  </main>
+
+  <div id="animBar" class="anim" hidden>
+    <button class="btn icon" id="animToggle" title="Lecture / pause"><i data-i="pause"></i></button>
+    <input type="range" id="animPos" min="0" max="1000" value="0" title="Progression">
+    <label class="speed" title="Vitesse">
+      <i data-i="speed"></i>
+      <input type="range" id="animSpeed" min="0" max="100" value="45">
+    </label>
+    <button class="btn icon" id="animStop" title="Arrêter la simulation"><i data-i="close"></i></button>
+  </div>
+
+  <footer class="status">
+    <span id="sCoord">X — · Y —</span>
+    <span id="sMeasure"></span>
+    <span class="spacer"></span>
+    <span id="sSize"></span>
+    <span id="sZoom"></span>
+  </footer>
+
+  <input type="file" id="fileInput" multiple hidden>
+  <div id="printArea"></div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
