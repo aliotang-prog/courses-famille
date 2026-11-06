@@ -20,7 +20,7 @@ const DEG = Math.PI / 180;
 const IGNORED = new Set([
   'BP', 'PS', 'NR', 'MC', 'PP', 'QL', 'RF', 'FT', 'UL', 'TR', 'MG', 'ST', 'PG', 'AC', 'CT', 'ES', 'LA',
   'SA', 'SS', 'CS', 'CA', 'TD', 'DV', 'PB', 'OI', 'OP', 'OS', 'OA', 'OC', 'OD', 'OE', 'OF', 'OG', 'OH',
-  'OO', 'OW', 'OL', 'VS', 'FS', 'AS', 'IW', 'KY', 'EC', 'FR', 'MT', 'PT', 'RP', 'NP', 'IR', 'LO', 'SL',
+  'OO', 'OW', 'OL', 'VS', 'FS', 'AS', 'IW', 'KY', 'EC', 'FR', 'MT', 'PT', 'RP', 'NP', 'IR', 'SL',
   'SB', 'SD', 'SV', 'TL', 'XT', 'YT', 'AD', 'GC', 'GM', 'IM', 'IV', 'BF', 'BR', 'DL', 'CV',
   'PL', 'TB', 'TE', 'MS', 'CF', 'LM', 'SG', 'HD', 'HT', 'QP', 'SN',
 ]);
@@ -54,6 +54,7 @@ export function parseHPGL(src) {
     st.charH = 0.27 * 400;
     st.charRel = null;
     st.dir = 0; // radians
+    st.lo = 1; // origine des étiquettes (1 à 9, 11 à 19)
     st.wu = 0;
     st.pm = null;
     st.polygon = null;
@@ -198,9 +199,12 @@ export function parseHPGL(src) {
     const [w, h] = charSize();
     const c = Math.cos(st.dir), sn = Math.sin(st.dir);
     let ox = st.x, oy = st.y, x = st.x, y = st.y, line = '';
+    const lo = st.lo > 10 ? st.lo - 10 : st.lo;
+    const hx = lo <= 3 ? 0 : lo <= 6 ? 0.5 : 1; // 0 gauche, ½ centre, 1 droite
+    const vy = [0, 0.5, 1][(lo - 1) % 3] || 0; // 0 bas, ½ milieu, 1 haut
     const flush = () => {
       if (line) {
-        ops.push({ kind: 'text', ...style(), x, y, w, h, angle: st.dir, text: line });
+        ops.push({ kind: 'text', ...style(), x, y, w, h, angle: st.dir, text: line, ax: hx, ay: vy });
         x += c * line.length * w * 1.5; y += sn * line.length * w * 1.5;
         line = '';
       }
@@ -212,7 +216,7 @@ export function parseHPGL(src) {
       else if (ch >= ' ') line += ch;
     }
     flush();
-    st.x = x; st.y = y;
+    if (lo === 1) { st.x = x; st.y = y; }
   }
 
   // ---- Lecture des paramètres ---------------------------------------------
@@ -539,6 +543,13 @@ export function parseHPGL(src) {
         st.dir = p.length >= 2 && (p[0] || p[1]) ? Math.atan2(p[1], p[0]) : 0;
         break;
       }
+      case 'LO': {
+        known++;
+        const p = readParams();
+        const v = p.length ? Math.round(p[0]) : 1;
+        st.lo = (v >= 1 && v <= 9) || (v >= 11 && v <= 19) ? v : 1;
+        break;
+      }
       case 'CP': {
         known++;
         const p = readParams();
@@ -592,8 +603,10 @@ export function parseHPGL(src) {
     } else if (op.kind === 'text') {
       const L = op.text.length * op.w * 1.5;
       const c = Math.cos(op.angle), sn = Math.sin(op.angle);
-      grow(op.x, op.y); grow(op.x + c * L, op.y + sn * L);
-      grow(op.x - sn * op.h, op.y + c * op.h); grow(op.x + c * L - sn * op.h, op.y + sn * L + c * op.h);
+      const u0 = -(op.ax || 0) * L, v0 = -(op.ay || 0) * op.h;
+      for (const [u, v] of [[u0, v0], [u0 + L, v0], [u0, v0 + op.h], [u0 + L, v0 + op.h]]) {
+        grow(op.x + c * u - sn * v, op.y + sn * u + c * v);
+      }
     }
   }
   if (minX === Infinity) { // aucun tracé : on prend les déplacements

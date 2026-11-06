@@ -304,7 +304,8 @@ function drawText(c, d, t, o) {
   c.fillStyle = penColor(d, t.pen, o.dark);
   c.font = `${t.h * 1.35}px "Segoe UI", Roboto, Arial, sans-serif`;
   c.textBaseline = 'alphabetic';
-  c.fillText(t.text, 0, 0);
+  c.textAlign = t.ax === 0.5 ? 'center' : t.ax === 1 ? 'right' : 'left';
+  c.fillText(t.text, 0, (t.ay || 0) * t.h);
   c.restore();
 }
 
@@ -727,7 +728,7 @@ function svgContent(d) {
     parts.push(`<path d="${segs.join('')}" stroke="${penColor(d, op.pen, false)}" stroke-width="${r2(Math.max(op.width, 0.1) * PLU_PER_MM)}"${dash}/>`);
   }
   const texts = d.cache.texts.filter((t) => !d.hidden.has(t.pen)).map((t) =>
-    `<text transform="translate(${r2(t.x)} ${r2(-t.y)}) rotate(${r2(-t.angle * 180 / Math.PI)})" font-size="${r2(t.h * 1.35)}" fill="${penColor(d, t.pen, false)}">${escapeHtml(t.text)}</text>`).join('');
+    `<text transform="translate(${r2(t.x)} ${r2(-t.y)}) rotate(${r2(-t.angle * 180 / Math.PI)})" y="${r2((t.ay || 0) * t.h)}" text-anchor="${t.ax === 0.5 ? 'middle' : t.ax === 1 ? 'end' : 'start'}" font-size="${r2(t.h * 1.35)}" fill="${penColor(d, t.pen, false)}">${escapeHtml(t.text)}</text>`).join('');
   return `<g transform="rotate(${-view.rot})"><g transform="scale(1,-1)" fill="none" stroke-linecap="round" stroke-linejoin="round">${parts.join('')}</g>`
     + `<g font-family="Segoe UI, Roboto, Arial, sans-serif">${texts}</g></g>`;
 }
