@@ -751,7 +751,16 @@ function exportPng() {
   c.toBlob((blob) => blob ? download(blob, baseName(doc.name) + '.png') : toast('Image trop grande pour être exportée.'), 'image/png');
 }
 const baseName = (n) => n.replace(/\.[^.]+$/, '') || 'dessin';
-function download(blob, name) {
+async function download(blob, name) {
+  // Dans un artefact claude.ai, les téléchargements passent par la capacité « downloads ».
+  if (window.claude && typeof window.claude.use === 'function') {
+    const dl = await window.claude.use('downloads').catch(() => null);
+    if (dl) {
+      try { await dl.save({ filename: name, data: blob }); toast(`Exporté : ${name}`); }
+      catch (e) { if (e && e.code !== 'declined') toast(`Export impossible ici (${e.code || 'erreur'}).`); }
+      return;
+    }
+  }
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = name;
